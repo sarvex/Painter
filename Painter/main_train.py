@@ -181,8 +181,8 @@ def main(args, ds_init):
     if ds_init is not None:
         misc.create_ds_config(args)
 
-    print('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
-    print("{}".format(args).replace(', ', ',\n'))
+    print(f'job dir: {os.path.dirname(os.path.realpath(__file__))}')
+    print(f"{args}".replace(', ', ',\n'))
 
     device = torch.device(args.device)
 
@@ -199,7 +199,7 @@ def main(args, ds_init):
     if args.finetune:
         checkpoint = torch.load(args.finetune, map_location='cpu')
 
-        print("Load pre-trained checkpoint from: %s" % args.finetune)
+        print(f"Load pre-trained checkpoint from: {args.finetune}")
         checkpoint_model = checkpoint['model']
         state_dict = model.state_dict()
         rm_key_list = ['decoder_embed.weight', 'decoder_embed.bias',  'mask_token']
@@ -224,7 +224,7 @@ def main(args, ds_init):
         print(msg)
 
     patch_size = model.patch_size
-    print("Patch size = %s" % str(patch_size))
+    print(f"Patch size = {str(patch_size)}")
     args.window_size = (args.input_size[0] // patch_size, args.input_size[1] // patch_size)
     args.patch_size = patch_size
 
@@ -263,20 +263,16 @@ def main(args, ds_init):
     print(dataset_train)
     print(dataset_val)
 
-    if True:  # args.distributed:
-        num_tasks = misc.get_world_size()
-        global_rank = misc.get_rank()
-        num_samples_train = len(dataset_train)
-        weights_train = dataset_train.weights
-        sampler_train = torch.utils.data.WeightedRandomSampler(weights_train, num_samples_train, replacement=True)
-        sampler_train = DistributedSamplerWrapper(sampler_train, num_replicas=num_tasks, rank=global_rank, shuffle=True)
+    num_tasks = misc.get_world_size()
+    global_rank = misc.get_rank()
+    num_samples_train = len(dataset_train)
+    weights_train = dataset_train.weights
+    sampler_train = torch.utils.data.WeightedRandomSampler(weights_train, num_samples_train, replacement=True)
+    sampler_train = DistributedSamplerWrapper(sampler_train, num_replicas=num_tasks, rank=global_rank, shuffle=True)
 
-        print("Sampler_train = %s" % str(sampler_train))
-        sampler_val = torch.utils.data.DistributedSampler(
-            dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=False)
-    else:
-        sampler_train = torch.utils.data.RandomSampler(dataset_train)
-
+    print(f"Sampler_train = {str(sampler_train)}")
+    sampler_val = torch.utils.data.DistributedSampler(
+        dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=False)
     if global_rank == 0 and args.log_dir is not None:
         os.makedirs(args.log_dir, exist_ok=True)
         log_writer = SummaryWriter(log_dir=args.log_dir)
@@ -305,14 +301,14 @@ def main(args, ds_init):
         pin_memory=args.pin_mem,
         drop_last=False,
         )
-    
+
 
     model.to(device)
     model_without_ddp = model
-    print("Model = %s" % str(model_without_ddp))
+    print(f"Model = {str(model_without_ddp)}")
 
     eff_batch_size = args.batch_size * args.accum_iter * misc.get_world_size()
-    
+
     if args.lr is None:  # only base_lr is specified
         args.lr = args.blr * eff_batch_size / 256
 
@@ -384,7 +380,7 @@ def main(args, ds_init):
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
-    print('Training time {}'.format(total_time_str))
+    print(f'Training time {total_time_str}')
 
     if global_rank == 0 and args.log_wandb:
         wandb.finish()

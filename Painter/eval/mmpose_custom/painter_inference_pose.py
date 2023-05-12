@@ -105,20 +105,23 @@ if __name__ == '__main__':
 
     path_splits = ckpt_path.split('/')
     ckpt_dir, ckpt_file = path_splits[-2], path_splits[-1]
-    dst_dir = os.path.join('models_inference', ckpt_dir.split('/')[-1],
-                           "coco_pose_inference_{}_{}".format(ckpt_path, os.path.basename(prompt).split(".")[0]))
+    dst_dir = os.path.join(
+        'models_inference',
+        ckpt_dir.split('/')[-1],
+        f'coco_pose_inference_{ckpt_path}_{os.path.basename(prompt).split(".")[0]}',
+    )
     if args.flip_test:
-        dst_dir = dst_dir + "_flip"
+        dst_dir = f"{dst_dir}_flip"
 
     if ddp_utils.get_rank() == 0:
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
-        print("output_dir: {}".format(dst_dir))
+        print(f"output_dir: {dst_dir}")
 
     model_painter = prepare_model(ckpt_path, model, args)
     print('Model loaded.')
 
-    img_src_dir = dataset_dir + "coco_pose/data_pair/test_256x192"
+    img_src_dir = f"{dataset_dir}coco_pose/data_pair/test_256x192"
     if args.flip_test:
         img_src_dir += "_flip"
 
@@ -128,8 +131,8 @@ if __name__ == '__main__':
     data_loader_val = DataLoader(dataset_val, batch_size=1, sampler=sampler_val,
                                  drop_last=False, collate_fn=ddp_utils.collate_fn, num_workers=2)
 
-    img2_path = dataset_dir + "coco_pose/data_pair/train_256x192_aug0/{}_image.png".format(prompt)
-    tgt2_path = dataset_dir + "coco_pose/data_pair/train_256x192_aug0/{}_label.png".format(prompt)
+    img2_path = f"{dataset_dir}coco_pose/data_pair/train_256x192_aug0/{prompt}_image.png"
+    tgt2_path = f"{dataset_dir}coco_pose/data_pair/train_256x192_aug0/{prompt}_label.png"
 
     # load the shared prompt image pair
     img2 = Image.open(img2_path).convert("RGB")

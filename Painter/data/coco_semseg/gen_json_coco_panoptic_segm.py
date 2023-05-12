@@ -26,24 +26,27 @@ def get_args_parser():
 if __name__ == "__main__":
     args = get_args_parser()
 
-    image_dir = "datasets/coco/{}/".format(args.split)
-    panoptic_dir = 'datasets/coco/pano_sem_seg/panoptic_segm_{}_with_color/'.format(args.split)
-    save_path = os.path.join(args.output_dir, "coco_{}_image_panoptic_sem_seg.json".format(args.split))
+    image_dir = f"datasets/coco/{args.split}/"
+    panoptic_dir = (
+        f'datasets/coco/pano_sem_seg/panoptic_segm_{args.split}_with_color/'
+    )
+    save_path = os.path.join(
+        args.output_dir, f"coco_{args.split}_image_panoptic_sem_seg.json"
+    )
     print(save_path)
 
     output_dict = []
 
-    image_path_list = glob.glob(image_dir + '*g')
+    image_path_list = glob.glob(f'{image_dir}*g')
     for image_path in tqdm.tqdm(image_path_list):
         image_name = image_path.split('/')[-1].split('.')[0]
-        image_path = os.path.join(image_dir, image_name+'.jpg')
-        panoptic_path = os.path.join(panoptic_dir, image_name+'.png')
+        image_path = os.path.join(image_dir, f'{image_name}.jpg')
+        panoptic_path = os.path.join(panoptic_dir, f'{image_name}.png')
         assert os.path.isfile(image_path)
         if not os.path.isfile(panoptic_path):
-            print("ignore {}".format(image_path))
+            print(f"ignore {image_path}")
             continue
-        pair_dict = {}
-        pair_dict["image_path"] = image_path.replace('datasets/', '')
+        pair_dict = {"image_path": image_path.replace('datasets/', '')}
         pair_dict["target_path"] = panoptic_path.replace('datasets/', '')
         pair_dict["type"] = "coco_image2panoptic_sem_seg"
         output_dict.append(pair_dict)

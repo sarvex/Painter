@@ -77,7 +77,7 @@ if __name__ == '__main__':
     model = args.model
     epoch = args.epoch
 
-    ckpt_file = 'checkpoint-{}.pth'.format(epoch)
+    ckpt_file = f'checkpoint-{epoch}.pth'
     assert ckpt_dir[-1] != "/"
 
     ckpt_path = os.path.join(ckpt_dir, ckpt_file)

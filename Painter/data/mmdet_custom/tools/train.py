@@ -160,7 +160,7 @@ def main():
                       'single GPU mode in non-distributed training. '
                       'Use `gpus=1` now.')
     if args.gpu_ids is not None:
-        cfg.gpu_ids = args.gpu_ids[0:1]
+        cfg.gpu_ids = args.gpu_ids[:1]
         warnings.warn('`--gpu-ids` is deprecated, please use `--gpu-id`. '
                       'Because we only support single GPU mode in '
                       'non-distributed training. Use the first GPU '
@@ -187,17 +187,13 @@ def main():
     log_file = osp.join(cfg.work_dir, f'{timestamp}.log')
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
 
-    # init the meta dict to record some important information such as
-    # environment info and seed, which will be logged
-    meta = dict()
     # log env info
     env_info_dict = collect_env()
     env_info = '\n'.join([(f'{k}: {v}') for k, v in env_info_dict.items()])
     dash_line = '-' * 60 + '\n'
     logger.info('Environment info:\n' + dash_line + env_info + '\n' +
                 dash_line)
-    meta['env_info'] = env_info
-    meta['config'] = cfg.pretty_text
+    meta = {'env_info': env_info, 'config': cfg.pretty_text}
     # log some basic info
     logger.info(f'Distributed training: {distributed}')
     logger.info(f'Config:\n{cfg.pretty_text}')

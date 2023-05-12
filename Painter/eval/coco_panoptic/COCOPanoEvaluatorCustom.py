@@ -169,7 +169,7 @@ class COCOPanopticEvaluatorCustom(COCOPanopticEvaluator):
             gt_file = "datasets/coco/annotations/instances_val2017.json"
             cocoGt = COCO(annotation_file=gt_file)
             inst_result_file = os.path.join(instance_seg_result_path, "coco_instances_results.json")
-            print("loading pre-computed instance seg from \n{}".format(inst_result_file))
+            print(f"loading pre-computed instance seg from \n{inst_result_file}")
             cocoDt = cocoGt.loadRes(inst_result_file)
             self.cocoDt = cocoDt
             self.cat2label = {cat_info['id']: label for label, cat_info in enumerate(cocoGt.dataset['categories'])}
@@ -187,7 +187,7 @@ class COCOPanopticEvaluatorCustom(COCOPanopticEvaluator):
             assert segments_info is not None
 
             file_name = os.path.basename(input["file_name"])
-            file_name_png = os.path.splitext(file_name)[0] + ".png"
+            file_name_png = f"{os.path.splitext(file_name)[0]}.png"
             with io.BytesIO() as out:
                 Image.fromarray(id2rgb(panoptic_img)).save(out, format="PNG")
                 segments_info = [self._convert_category_id(x) for x in segments_info]
@@ -304,14 +304,18 @@ if __name__ == "__main__":
     ckpt_file = args.ckpt_file
     # define pred paths
     work_dir = args.work_dir
-    pred_dir_inst = os.path.join(work_dir, "pano_inst_inference_{}_{}_size{}".format(
-        ckpt_file, args.prompt, args.input_size))
-    pred_dir_semseg = os.path.join(work_dir, "pano_semseg_inference_{}_{}_size{}".format(
-        ckpt_file, args.prompt, args.input_size))
+    pred_dir_inst = os.path.join(
+        work_dir,
+        f"pano_inst_inference_{ckpt_file}_{args.prompt}_size{args.input_size}",
+    )
+    pred_dir_semseg = os.path.join(
+        work_dir,
+        f"pano_semseg_inference_{ckpt_file}_{args.prompt}_size{args.input_size}",
+    )
     instance_seg_result_path = os.path.join(
         work_dir,
-        "instance_segm_post_merge_{}_{}".format(ckpt_file, args.prompt),
-        "dist{}_{}nms_iou{}".format(args.dist_thr, args.nms_type, args.nms_iou),
+        f"instance_segm_post_merge_{ckpt_file}_{args.prompt}",
+        f"dist{args.dist_thr}_{args.nms_type}nms_iou{args.nms_iou}",
     )
     gt_file = "datasets/coco/annotations/instances_val2017.json"
 
@@ -351,8 +355,10 @@ if __name__ == "__main__":
     # define pano seg evaluator
     # dataset_name = 'coco_2017_val_panoptic'
     dataset_name = 'coco_2017_val_panoptic_with_sem_seg'
-    output_dir = os.path.join(work_dir, "panoptic_segm_{}_OverlapThr{}_StuffAreaThr{}_InstScoreThr{}".format(
-        ckpt_file, args.overlap_threshold, args.stuff_area_thresh, args.instances_score_thresh))
+    output_dir = os.path.join(
+        work_dir,
+        f"panoptic_segm_{ckpt_file}_OverlapThr{args.overlap_threshold}_StuffAreaThr{args.stuff_area_thresh}_InstScoreThr{args.instances_score_thresh}",
+    )
 
     evaluator = COCOPanopticEvaluatorCustom(
         dataset_name=dataset_name, output_dir=output_dir,

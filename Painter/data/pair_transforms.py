@@ -181,9 +181,7 @@ class RandomHorizontalFlip(transforms.RandomHorizontalFlip):
         Returns:
             PIL Image or Tensor: Randomly flipped image.
         """
-        if torch.rand(1) < self.p:
-            return F.hflip(img), F.hflip(tgt)
-        return img, tgt
+        return (F.hflip(img), F.hflip(tgt)) if torch.rand(1) < self.p else (img, tgt)
 
 
 class RandomApply(transforms.RandomApply):
@@ -296,27 +294,26 @@ class RandomErasing(transforms.RandomErasing):
         Returns:
             img (Tensor): Erased Tensor image.
         """
-        if torch.rand(1) < self.p:
+        if torch.rand(1) >= self.p:
+            return img, tgt
+        # cast self.value to script acceptable type
+        if isinstance(self.value, (int, float)):
+            value = [self.value]
+        elif isinstance(self.value, str):
+            value = None
+        elif isinstance(self.value, tuple):
+            value = list(self.value)
+        else:
+            value = self.value
 
-            # cast self.value to script acceptable type
-            if isinstance(self.value, (int, float)):
-                value = [self.value]
-            elif isinstance(self.value, str):
-                value = None
-            elif isinstance(self.value, tuple):
-                value = list(self.value)
-            else:
-                value = self.value
+        if value is not None and len(value) not in (1, img.shape[-3]):
+            raise ValueError(
+                "If value is a sequence, it should have either a single value or "
+                f"{img.shape[-3]} (number of input channels)"
+            )
 
-            if value is not None and not (len(value) in (1, img.shape[-3])):
-                raise ValueError(
-                    "If value is a sequence, it should have either a single value or "
-                    f"{img.shape[-3]} (number of input channels)"
-                )
-
-            x, y, h, w, v = self.get_params(img, scale=self.scale, ratio=self.ratio, value=value)
-            return F.erase(img, x, y, h, w, v, self.inplace), tgt
-        return img, tgt
+        x, y, h, w, v = self.get_params(img, scale=self.scale, ratio=self.ratio, value=value)
+        return F.erase(img, x, y, h, w, v, self.inplace), tgt
 
 
 
@@ -332,6 +329,5 @@ class GaussianBlur(object):
         return img, tgt
 
     def __repr__(self) -> str:
-        s = f"{self.__class__.__name__}( sigma={self.sigma})"
-        return s
+        return f"{self.__class__.__name__}( sigma={self.sigma})"
 

@@ -28,7 +28,7 @@ noisy_patchDir = os.path.join(tar, 'input')
 clean_patchDir = os.path.join(tar, 'groundtruth')
 
 if os.path.exists(tar):
-    os.system("rm -r {}".format(tar))
+    os.system(f"rm -r {tar}")
 
 os.makedirs(noisy_patchDir)
 os.makedirs(clean_patchDir)
@@ -57,7 +57,7 @@ def save_files(i):
         noisy_patch = noisy_img[rr:rr + PS, cc:cc + PS, :]
         clean_patch = clean_img[rr:rr + PS, cc:cc + PS, :]
 
-        cv2.imwrite(os.path.join(noisy_patchDir, '{}_{}.png'.format(i+1,j+1)), noisy_patch)
-        cv2.imwrite(os.path.join(clean_patchDir, '{}_{}.png'.format(i+1,j+1)), clean_patch)
+        cv2.imwrite(os.path.join(noisy_patchDir, f'{i + 1}_{j + 1}.png'), noisy_patch)
+        cv2.imwrite(os.path.join(clean_patchDir, f'{i + 1}_{j + 1}.png'), clean_patch)
 
 Parallel(n_jobs=NUM_CORES)(delayed(save_files)(i) for i in tqdm(range(len(noisy_files))))

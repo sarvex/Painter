@@ -135,16 +135,26 @@ class SaveDataPairCustom:
         # images are loaded in bgr order, reverse before saving
         img_pil = Image.fromarray(img[:, :, ::-1].astype('uint8'))
         label_pil = Image.fromarray(segmentation)
-        image_path = os.path.join(output_dir, file_name.replace(".jpg", "_image_{}.png".format(self.dir_name)))
-        label_path = os.path.join(output_dir, file_name.replace(".jpg", "_label_{}.png".format(self.dir_name)))
+        image_path = os.path.join(
+            output_dir, file_name.replace(".jpg", f"_image_{self.dir_name}.png")
+        )
+        label_path = os.path.join(
+            output_dir, file_name.replace(".jpg", f"_label_{self.dir_name}.png")
+        )
         # if os.path.exists(image_path) or os.path.exists(label_path):
         #     print("{} exists!".format(image_path))
         #     return results
         aug_idx = 0
         while os.path.exists(image_path) or os.path.exists(label_path):
             aug_idx += 1
-            image_path = os.path.join(output_dir, file_name.replace(".jpg", "_image_{}_{}.png".format(self.dir_name, aug_idx)))
-            label_path = os.path.join(output_dir, file_name.replace(".jpg", "_label_{}_{}.png".format(self.dir_name, aug_idx)))
+            image_path = os.path.join(
+                output_dir,
+                file_name.replace(".jpg", f"_image_{self.dir_name}_{aug_idx}.png"),
+            )
+            label_path = os.path.join(
+                output_dir,
+                file_name.replace(".jpg", f"_label_{self.dir_name}_{aug_idx}.png"),
+            )
         img_pil.save(image_path)
         label_pil.save(label_path)
 

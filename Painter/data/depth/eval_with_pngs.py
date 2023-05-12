@@ -93,7 +93,7 @@ def test():
         pred_depth_path = os.path.join(args.pred_path, pred_filenames[i])
         pred_depth = cv2.imread(pred_depth_path, -1)
         if pred_depth is None:
-            print('Missing: %s ' % pred_depth_path)
+            print(f'Missing: {pred_depth_path} ')
             missing_ids.add(i)
             continue
 
@@ -105,17 +105,22 @@ def test():
         pred_depths.append(pred_depth)
 
     print('Raw png files reading done')
-    print('Evaluating {} files'.format(len(pred_depths)))
+    print(f'Evaluating {len(pred_depths)} files')
 
     if args.dataset == 'kitti':
         for t_id in range(num_test_samples):
             file_dir = pred_filenames[t_id].split('.')[0]
             filename = file_dir.split('_')[-1]
-            directory = file_dir.replace('_' + filename, '')
-            gt_depth_path = os.path.join(args.gt_path, directory, 'proj_depth/groundtruth/image_02', filename + '.png')
+            directory = file_dir.replace(f'_{filename}', '')
+            gt_depth_path = os.path.join(
+                args.gt_path,
+                directory,
+                'proj_depth/groundtruth/image_02',
+                f'{filename}.png',
+            )
             depth = cv2.imread(gt_depth_path, -1)
             if depth is None:
-                print('Missing: %s ' % gt_depth_path)
+                print(f'Missing: {gt_depth_path} ')
                 missing_ids.add(t_id)
                 continue
 
@@ -127,10 +132,12 @@ def test():
             file_dir = pred_filenames[t_id].split('.')[0]
             filename = file_dir.split('_')[-1]
             directory = file_dir.replace('_rgb_'+file_dir.split('_')[-1], '')
-            gt_depth_path = os.path.join(args.gt_path, directory, 'sync_depth_' + filename + '.png')
+            gt_depth_path = os.path.join(
+                args.gt_path, directory, f'sync_depth_{filename}.png'
+            )
             depth = cv2.imread(gt_depth_path, -1)
             if depth is None:
-                print('Missing: %s ' % gt_depth_path)
+                print(f'Missing: {gt_depth_path} ')
                 missing_ids.add(t_id)
                 continue
 
@@ -138,7 +145,7 @@ def test():
             gt_depths.append(depth)
 
     print('GT files reading done')
-    print('{} GT files missing'.format(len(missing_ids)))
+    print(f'{len(missing_ids)} GT files missing')
 
     print('Computing errors')
     eval(pred_depths)
@@ -152,13 +159,12 @@ def eval(pred_depths):
     pred_depths_valid = []
 
     i = 0
-    for t_id in range(num_samples):
-        if t_id in missing_ids:
-            continue
-
-        pred_depths_valid.append(pred_depths[t_id])
-
-    num_samples = num_samples - len(missing_ids)
+    pred_depths_valid.extend(
+        pred_depths[t_id]
+        for t_id in range(num_samples)
+        if t_id not in missing_ids
+    )
+    num_samples -= len(missing_ids)
 
     silog = np.zeros(num_samples, np.float32)
     log10 = np.zeros(num_samples, np.float32)
@@ -169,7 +175,7 @@ def eval(pred_depths):
     d1 = np.zeros(num_samples, np.float32)
     d2 = np.zeros(num_samples, np.float32)
     d3 = np.zeros(num_samples, np.float32)
-    
+
     for i in range(num_samples):
 
         gt_depth = gt_depths[i]

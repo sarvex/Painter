@@ -40,7 +40,7 @@ def train_one_epoch(model: torch.nn.Module,
     model.train(True)
     metric_logger = misc.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', misc.SmoothedValue(window_size=1, fmt='{value:.6f}'))
-    header = 'Epoch: [{}]'.format(epoch)
+    header = f'Epoch: [{epoch}]'
     print_freq = 20
 
     accum_iter = args.accum_iter
@@ -48,7 +48,7 @@ def train_one_epoch(model: torch.nn.Module,
     optimizer.zero_grad()
 
     if log_writer is not None:
-        print('log_dir: {}'.format(log_writer.log_dir))
+        print(f'log_dir: {log_writer.log_dir}')
 
     wandb_images = []
     for data_iter_step, (samples, targets, bool_masked_pos, valid) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
@@ -68,7 +68,7 @@ def train_one_epoch(model: torch.nn.Module,
         loss_value = loss.item()
 
         if not math.isfinite(loss_value):
-            print("Loss is {}, stopping training".format(loss_value))
+            print(f"Loss is {loss_value}, stopping training")
             sys.exit(1)
 
         if loss_scaler is None:
@@ -129,13 +129,13 @@ def train_one_epoch(model: torch.nn.Module,
                     tgt = tgt.detach().float().cpu()
                     tgt = torch.einsum('nchw->nhwc', tgt)
                     im_masked = tgt * (1 - mask)
-                    
+
                     frame = torch.cat((x, im_masked, y, tgt), dim=2)
                     frame = frame[0]
                     frame = torch.clip((frame * imagenet_std + imagenet_mean) * 255, 0, 255).int()
                     wandb_images.append(wandb.Image(frame.numpy(), caption="x; im_masked; y; tgt"))
 
-    if global_rank == 0 and args.log_wandb and len(wandb_images) > 0:
+    if global_rank == 0 and args.log_wandb and wandb_images:
         wandb.log({"Training examples": wandb_images})
 
     # gather the stats from all processes
@@ -184,7 +184,7 @@ def evaluate_pt(data_loader, model, device, epoch=None, global_rank=None, args=N
             tgt = tgt.detach().float().cpu()
             tgt = torch.einsum('nchw->nhwc', tgt)
             im_masked = tgt * (1 - mask)
-            
+
             frame = torch.cat((x, im_masked, y, tgt), dim=2)
             frame = frame[0]
             frame = torch.clip((frame * imagenet_std + imagenet_mean) * 255, 0, 255).int()
@@ -198,6 +198,6 @@ def evaluate_pt(data_loader, model, device, epoch=None, global_rank=None, args=N
 
     if global_rank == 0 and args.log_wandb:
         wandb.log({**{f'test_{k}': v for k, v in out.items()},'epoch': epoch})
-        if len(wandb_images) > 0:
+        if wandb_images:
             wandb.log({"Testing examples": wandb_images[::2][:20]})
     return out

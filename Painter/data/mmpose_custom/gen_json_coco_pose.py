@@ -39,13 +39,13 @@ if __name__ == "__main__":
     else:
         raise NotImplementedError
 
-    save_path = os.path.join(args.output_dir, "coco_pose_256x192_{}.json".format(split))
+    save_path = os.path.join(args.output_dir, f"coco_pose_256x192_{split}.json")
     print(save_path)
 
     output_dict = []
 
     for aug_idx in aug_list:
-        image_dir = "datasets/coco_pose/data_pair/{}_256x192{}".format(split, aug_idx)
+        image_dir = f"datasets/coco_pose/data_pair/{split}_256x192{aug_idx}"
         print(aug_idx, image_dir)
         image_path_list = glob.glob(os.path.join(image_dir, '*image.png'))
 
@@ -54,10 +54,9 @@ if __name__ == "__main__":
             assert label_path != image_path
             assert os.path.isfile(image_path)
             if not os.path.isfile(label_path):
-                print("ignoring {}".format(label_path))
+                print(f"ignoring {label_path}")
                 continue
-            pair_dict = {}
-            pair_dict["image_path"] = image_path.replace('datasets/', '')
+            pair_dict = {"image_path": image_path.replace('datasets/', '')}
             pair_dict["target_path"] = label_path.replace('datasets/', '')
             pair_dict["type"] = "coco_image2pose"
             output_dict.append(pair_dict)

@@ -166,16 +166,16 @@ class TopDownGenerateTargetCustom(TopDownGenerateTarget):
             image = Image.fromarray(image)
 
             _, filename = os.path.dirname(results['image_file']), os.path.basename(results['image_file'])
-            image_path = os.path.join(target_dir,
-                                      filename.replace(".jpg", "_box{}_image.png".format(box_idx)))
+            image_path = os.path.join(
+                target_dir, filename.replace(".jpg", f"_box{box_idx}_image.png")
+            )
             if os.path.exists(image_path):
                 print(image_path, "exist! return!")
                 return results
             image.save(image_path)
+        elif (target.sum((1, 2)) == 0).all():
+            return results
         else:
-            # filter all black target
-            if (target.sum((1, 2)) == 0).all():
-                return results
             # encode target to image (save is also done inside)
             encode_target_to_image(target, target_weight, target_dir=target_dir, metas=results)
 

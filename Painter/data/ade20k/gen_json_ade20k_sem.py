@@ -28,20 +28,27 @@ if __name__ == '__main__':
 
     image_dir = os.path.join("datasets/ade20k/images", args.split)
     annos_dir = os.path.join("datasets/ade20k/annotations_with_color", args.split)
-    save_path = os.path.join(args.output_dir, "ade20k_{}_image_semantic.json".format(args.split))
+    save_path = os.path.join(
+        args.output_dir, f"ade20k_{args.split}_image_semantic.json"
+    )
 
     output_dict = []
 
     image_path_list = glob.glob(os.path.join(image_dir, '*g'))
     for image_path in tqdm.tqdm(image_path_list):
         image_name = image_path.split('/')[-1].split('.')[0]
-        image_path = os.path.join(image_dir, image_name + '.jpg')
-        panoptic_path = os.path.join(annos_dir, image_name + '.png')
+        image_path = os.path.join(image_dir, f'{image_name}.jpg')
+        panoptic_path = os.path.join(annos_dir, f'{image_name}.png')
         assert os.path.isfile(image_path)
         assert os.path.isfile(panoptic_path)
-        pair_dict = {}
-        pair_dict["image_path"] = os.path.join("ade20k/images/{}/".format(args.split), image_name + ".jpg")
-        pair_dict["target_path"] = "ade20k/annotations_with_color/{}/".format(args.split) + image_name + ".png"
+        pair_dict = {
+            "image_path": os.path.join(
+                f"ade20k/images/{args.split}/", f"{image_name}.jpg"
+            )
+        }
+        pair_dict[
+            "target_path"
+        ] = f"ade20k/annotations_with_color/{args.split}/{image_name}.png"
         pair_dict["type"] = "ade20k_image2semantic"
         output_dict.append(pair_dict)
     json.dump(output_dict, open(save_path, 'w'))

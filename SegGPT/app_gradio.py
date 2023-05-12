@@ -25,14 +25,10 @@ def inference_mask1_sam(prompt,
     r = requests.post("http://120.92.79.209/painter/run", json = files)
     a = json.loads(r.text)
 
-    res = []
-
-    for i in range(len(a)):
-        #out = Image.open(io.BytesIO(base64.b64decode(a[i])))
-        #out = out.resize((224, 224))
-        #res.append(np.uint8(np.array(out)))
-        res.append(np.uint8(np.array(Image.open(io.BytesIO(base64.b64decode(a[i]))))))
-
+    res = [
+        np.uint8(np.array(Image.open(io.BytesIO(base64.b64decode(a[i])))))
+        for i in range(len(a))
+    ]
     return res[1:] # remove the prompt image
 
 def inference_mask1(prompt,
@@ -46,13 +42,10 @@ def inference_mask1(prompt,
     }
     r = requests.post("http://120.92.79.209/painter/run", json = files)
     a = json.loads(r.text)
-    res = []
-    for i in range(len(a)):
-        #out = Image.open(io.BytesIO(base64.b64decode(a[i])))
-        #out = out.resize((224, 224))
-        #res.append(np.uint8(np.array(out)))
-        res.append(np.uint8(np.array(Image.open(io.BytesIO(base64.b64decode(a[i]))))))
-    return res
+    return [
+        np.uint8(np.array(Image.open(io.BytesIO(base64.b64decode(a[i])))))
+        for i in range(len(a))
+    ]
 
 
 def inference_mask_video(

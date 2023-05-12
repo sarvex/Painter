@@ -33,24 +33,27 @@ if __name__ == '__main__':
 
     split_dir = split2dir[args.split]
     output_dict = []
-    save_path = os.path.join(args.output_dir, "nyuv2_{}_image_depth.json".format(args.split))
+    save_path = os.path.join(
+        args.output_dir, f"nyuv2_{args.split}_image_depth.json"
+    )
 
     src_dir = os.path.join("datasets/nyu_depth_v2", split_dir)
-    image_path_list = glob.glob(src_dir + "/*/rgb_*.jpg")
+    image_path_list = glob.glob(f"{src_dir}/*/rgb_*.jpg")
 
     for image_path in tqdm.tqdm(image_path_list):
         room_name = image_path.split('/')[-2]
         frame_name = image_path.split('/')[-1].split('.')[0].split('_')[1]
-        target_path = src_dir + '/' + room_name + '/sync_depth_' + frame_name + '.png'
+        target_path = f'{src_dir}/{room_name}/sync_depth_{frame_name}.png'
         assert os.path.isfile(image_path)
         assert os.path.isfile(target_path)
-        image_name = image_path.split('{}/'.format(args.split))[-1]
-        target_name = target_path.split('{}/'.format(args.split))[-1]
+        image_name = image_path.split(f'{args.split}/')[-1]
+        target_name = target_path.split(f'{args.split}/')[-1]
 
-        pair_dict = {}
-        pair_dict["image_path"] = "nyu_depth_v2/{}/".format(split_dir) + image_name
-        pair_dict["target_path"] = "nyu_depth_v2/{}/".format(split_dir) + target_name
-        pair_dict["type"] = "nyuv2_image2depth"
+        pair_dict = {
+            "image_path": f"nyu_depth_v2/{split_dir}/{image_name}",
+            "target_path": f"nyu_depth_v2/{split_dir}/{target_name}",
+            "type": "nyuv2_image2depth",
+        }
         output_dict.append(pair_dict)
 
     json.dump(output_dict, open(save_path, 'w'))

@@ -62,7 +62,7 @@ class COCOPanoptic(COCO):
                     seg_ann['width'] = img_info['width']
                     img_to_anns[ann['image_id']].append(seg_ann)
                     # segment_id is not unique in coco dataset orz...
-                    if seg_ann['id'] in anns.keys():
+                    if seg_ann['id'] in anns:
                         anns[seg_ann['id']].append(seg_ann)
                     else:
                         anns[seg_ann['id']] = [seg_ann]
@@ -100,9 +100,9 @@ class COCOPanoptic(COCO):
         Returns:
             anns (object array): loaded ann objects
         """
-        anns = []
-
         if hasattr(ids, '__iter__') and hasattr(ids, '__len__'):
+            anns = []
+
             # self.anns is a list of annotation lists instead of
             # a list of annotations
             for id in ids:

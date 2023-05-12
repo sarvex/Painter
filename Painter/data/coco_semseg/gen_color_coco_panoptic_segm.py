@@ -57,8 +57,7 @@ def define_colors_by_mean_sep(num_colors=133, channelsep=7):
 def load_image_with_retry(image_path):
     while True:
         try:
-            img = Image.open(image_path)
-            return img
+            return Image.open(image_path)
         except OSError as e:
             print(f"Catched exception: {str(e)}. Re-trying...")
             import time
@@ -79,18 +78,18 @@ if __name__ == '__main__':
     split = args.split
     channelsep = 7
 
-    json_file = 'datasets/coco/annotations/panoptic_{}.json'.format(split)
-    segmentations_folder = 'datasets/coco/annotations/panoptic_{}'.format(split)
-    img_folder = 'datasets/coco/{}'.format(split)
+    json_file = f'datasets/coco/annotations/panoptic_{split}.json'
+    segmentations_folder = f'datasets/coco/annotations/panoptic_{split}'
+    img_folder = f'datasets/coco/{split}'
     panoptic_coco_categories = 'data/panoptic_coco_categories.json'
-    output_dir = os.path.join(args.output_dir, 'panoptic_segm_{}_with_color'.format(split))
+    output_dir = os.path.join(args.output_dir, f'panoptic_segm_{split}_with_color')
     print(output_dir)
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     else:
-        warnings.warn("{} exists! make sure to overwrite?".format(output_dir))
-        # raise NotImplementedError("{} exists! make sure to overwrite?".format(output_dir))
+        warnings.warn(f"{output_dir} exists! make sure to overwrite?")
+            # raise NotImplementedError("{} exists! make sure to overwrite?".format(output_dir))
 
     # load cat info
     with open(panoptic_coco_categories, 'r') as f:
@@ -123,7 +122,7 @@ if __name__ == '__main__':
         segmentation[:, :, :] = 0
 
         boxes = [seg['bbox'] for seg in ann['segments_info']]  # x, y, w, h
-        if len(boxes) == 0:
+        if not boxes:
             print("bbox is empty!")
             continue
         boxes = np.array(boxes)  # (num_boxes, 4)

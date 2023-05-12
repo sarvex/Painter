@@ -190,13 +190,14 @@ if __name__ == '__main__':
     results = evaluator.evaluate()
     print(results)
 
-    copy_paste_results = {}
-    for key in ['mIoU', 'fwIoU', 'mACC', 'pACC']:
-        copy_paste_results[key] = results['sem_seg'][key]
+    copy_paste_results = {
+        key: results['sem_seg'][key]
+        for key in ['mIoU', 'fwIoU', 'mACC', 'pACC']
+    }
     print(copy_paste_results)
 
     result_file = os.path.join(output_folder, "results.txt")
-    print("writing to {}".format(result_file))
+    print(f"writing to {result_file}")
     with open(result_file, 'w') as f:
         print(results, file=f)
         print(copy_paste_results, file=f)

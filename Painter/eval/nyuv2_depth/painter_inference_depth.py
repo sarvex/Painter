@@ -100,16 +100,19 @@ if __name__ == '__main__':
     device = torch.device("cuda")
     model_painter.to(device)
 
-    dst_dir = os.path.join('models_inference', ckpt_dir,
-                           "nyuv2_depth_inference_{}_{}/".format(ckpt_file, args.prompt))
+    dst_dir = os.path.join(
+        'models_inference',
+        ckpt_dir,
+        f"nyuv2_depth_inference_{ckpt_file}_{args.prompt}/",
+    )
     print(dst_dir)
     if not os.path.exists(dst_dir):
         os.makedirs(dst_dir)
 
     img_src_dir = "datasets/nyu_depth_v2/official_splits/test/"
-    img_path_list = glob.glob(img_src_dir + "/*/rgb*g")
-    img2_path = "datasets/nyu_depth_v2/sync/{}.jpg".format(args.prompt)
-    tgt_path = "datasets/nyu_depth_v2/sync/{}.png".format(args.prompt.replace('rgb', 'sync_depth'))
+    img_path_list = glob.glob(f"{img_src_dir}/*/rgb*g")
+    img2_path = f"datasets/nyu_depth_v2/sync/{args.prompt}.jpg"
+    tgt_path = f"datasets/nyu_depth_v2/sync/{args.prompt.replace('rgb', 'sync_depth')}.png"
     tgt2_path = tgt_path
 
     res, hres = args.input_size, args.input_size
@@ -117,7 +120,7 @@ if __name__ == '__main__':
     for img_path in tqdm.tqdm(img_path_list):
         room_name = img_path.split("/")[-2]
         img_name = img_path.split("/")[-1].split(".")[0]
-        out_path = dst_dir + "/" + room_name + "_" + img_name + ".png"
+        out_path = f"{dst_dir}/{room_name}_{img_name}.png"
         img = Image.open(img_path).convert("RGB")
         size = img.size
         img = img.resize((res, hres))

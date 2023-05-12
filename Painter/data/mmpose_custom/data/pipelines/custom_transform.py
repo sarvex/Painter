@@ -117,8 +117,12 @@ def encode_rgb_target_to_image(target_kernel, target_class, target_weight_kernel
     box_idx = metas['bbox_id']
 
     _, filename = os.path.dirname(metas['image_file']), os.path.basename(metas['image_file'])
-    image_path = os.path.join(target_dir, filename.replace(".jpg", "_box{}_image.png".format(box_idx)))
-    label_path = os.path.join(target_dir, filename.replace(".jpg", "_box{}_label.png".format(box_idx)))
+    image_path = os.path.join(
+        target_dir, filename.replace(".jpg", f"_box{box_idx}_image.png")
+    )
+    label_path = os.path.join(
+        target_dir, filename.replace(".jpg", f"_box{box_idx}_label.png")
+    )
 
     # if os.path.exists(image_path):
     #     print(image_path, "exist! return!")

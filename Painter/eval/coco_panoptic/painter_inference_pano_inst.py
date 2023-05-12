@@ -106,26 +106,29 @@ if __name__ == '__main__':
 
     path_splits = ckpt_path.split('/')
     ckpt_dir, ckpt_file = path_splits[-2], path_splits[-1]
-    dst_dir = os.path.join('models_inference', ckpt_dir,
-                           "pano_inst_inference_{}_{}_size{}/".format(ckpt_file, prompt, input_size))
+    dst_dir = os.path.join(
+        'models_inference',
+        ckpt_dir,
+        f"pano_inst_inference_{ckpt_file}_{prompt}_size{input_size}/",
+    )
 
     if ddp_utils.get_rank() == 0:
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
-        print("output_dir: {}".format(dst_dir))
+        print(f"output_dir: {dst_dir}")
 
     model_painter = prepare_model(ckpt_path, model, args=args)
     print('Model loaded.')
 
-    img_src_dir = dataset_dir + "coco/val2017"
+    img_src_dir = f"{dataset_dir}coco/val2017"
     # img_path_list = glob.glob(os.path.join(img_src_dir, "*.jpg"))
     dataset_val = DatasetTest(img_src_dir, input_size, ext_list=('*.jpg',))
     sampler_val = DistributedSampler(dataset_val, shuffle=False)
     data_loader_val = DataLoader(dataset_val, batch_size=1, sampler=sampler_val,
                                  drop_last=False, collate_fn=ddp_utils.collate_fn, num_workers=2)
 
-    img2_path = dataset_dir + "coco/pano_ca_inst/train_org/{}_image_train_org.png".format(prompt)
-    tgt2_path = dataset_dir + "coco/pano_ca_inst/train_org/{}_label_train_org.png".format(prompt)
+    img2_path = f"{dataset_dir}coco/pano_ca_inst/train_org/{prompt}_image_train_org.png"
+    tgt2_path = f"{dataset_dir}coco/pano_ca_inst/train_org/{prompt}_label_train_org.png"
 
     # load the shared prompt image pair
     img2 = Image.open(img2_path).convert("RGB")

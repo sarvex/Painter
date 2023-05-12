@@ -218,10 +218,14 @@ if __name__ == "__main__":
     # define pred paths
     ckpt_file = args.ckpt_file
     work_dir = args.work_dir
-    pred_dir_inst = os.path.join(work_dir, 'pano_inst_inference_{}_{}_size{}'.format(
-        ckpt_file, args.prompt, args.input_size))
-    pred_dir_semseg = os.path.join(work_dir, "pano_semseg_inference_{}_{}_size{}".format(
-        ckpt_file, args.prompt, args.input_size))
+    pred_dir_inst = os.path.join(
+        work_dir,
+        f'pano_inst_inference_{ckpt_file}_{args.prompt}_size{args.input_size}',
+    )
+    pred_dir_semseg = os.path.join(
+        work_dir,
+        f"pano_semseg_inference_{ckpt_file}_{args.prompt}_size{args.input_size}",
+    )
     gt_file = "datasets/coco/annotations/instances_val2017.json"
 
     print(pred_dir_inst)
@@ -263,8 +267,8 @@ if __name__ == "__main__":
     dataset_name = 'coco_2017_val'
     output_dir = os.path.join(
         work_dir,
-        "instance_segm_post_merge_{}_{}".format(ckpt_file, args.prompt),
-        "dist{}_{}nms_iou{}".format(args.dist_thr, args.nms_type, args.nms_iou),
+        f"instance_segm_post_merge_{ckpt_file}_{args.prompt}",
+        f"dist{args.dist_thr}_{args.nms_type}nms_iou{args.nms_iou}",
     )
 
     inputs = []

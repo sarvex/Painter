@@ -100,8 +100,7 @@ class PairDataset(VisionDataset):
     def _combine_images(self, image, image2, interpolation='bicubic'):
         # image under image2
         h, w = image.shape[1], image.shape[2]
-        dst = torch.cat([image, image2], dim=1)
-        return dst
+        return torch.cat([image, image2], dim=1)
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         pair = self.pairs[index]
@@ -110,19 +109,20 @@ class PairDataset(VisionDataset):
 
         # decide mode for interpolation
         pair_type = pair['type']
-        if "depth" in pair_type or "pose" in pair_type:
+        if (
+            "depth" in pair_type
+            or "pose" in pair_type
+            or "image2" not in pair_type
+            and "2image" not in pair_type
+        ):
             interpolation1 = 'bicubic'
             interpolation2 = 'bicubic'
         elif "image2" in pair_type:
             interpolation1 = 'bicubic'
             interpolation2 = 'nearest'
-        elif "2image" in pair_type:
+        else:
             interpolation1 = 'nearest'
             interpolation2 = 'bicubic'
-        else:
-            interpolation1 = 'bicubic'
-            interpolation2 = 'bicubic'
-            
         # no aug for instance segmentation
         if "inst" in pair['type'] and self.transforms2 is not None:
             cur_transforms = self.transforms2
@@ -146,11 +146,14 @@ class PairDataset(VisionDataset):
             target = self._combine_images(target, target2, interpolation2)
 
         use_half_mask = torch.rand(1)[0] < self.half_mask_ratio
-        if (self.transforms_seccrop is None) or ("inst" in pair['type']) or ("pose" in pair['type']) or use_half_mask:
-            pass
-        else:
+        if (
+            self.transforms_seccrop is not None
+            and "inst" not in pair['type']
+            and "pose" not in pair['type']
+            and not use_half_mask
+        ):
             image, target = self.transforms_seccrop(image, target, interpolation1, interpolation2)
-        
+
         valid = torch.ones_like(target)
         imagenet_mean=torch.tensor([0.485, 0.456, 0.406])
         imagenet_std=torch.tensor([0.229, 0.224, 0.225])
@@ -158,11 +161,10 @@ class PairDataset(VisionDataset):
             thres = torch.ones(3) * (1e-3 * 0.1)
             thres = (thres - imagenet_mean) / imagenet_std
             valid[target < thres[:, None, None]] = 0
-        elif "ade20k_image2semantic" in pair_type:
-            thres = torch.ones(3) * (1e-5) # ignore black
-            thres = (thres - imagenet_mean) / imagenet_std
-            valid[target < thres[:, None, None]] = 0
-        elif "coco_image2panoptic_sem_seg" in pair_type:
+        elif (
+            "ade20k_image2semantic" in pair_type
+            or "coco_image2panoptic_sem_seg" in pair_type
+        ):
             thres = torch.ones(3) * (1e-5) # ignore black
             thres = (thres - imagenet_mean) / imagenet_std
             valid[target < thres[:, None, None]] = 0
@@ -186,7 +188,7 @@ class PairDataset(VisionDataset):
             mask[mask.shape[0]//2:, :] = 1
         else:
             mask = self.masked_position_generator()
-        
+
         return image, target, mask, valid
 
     def __len__(self) -> int:

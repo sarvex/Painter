@@ -76,10 +76,7 @@ def colorEncode(labelmap, colors, mode='RGB'):
         labelmap_rgb += (labelmap == label)[:, :, np.newaxis] * \
             np.tile(np.array(colors[label-1], dtype=np.uint8), (labelmap.shape[0], labelmap.shape[1], 1))
 
-    if mode == 'BGR':
-        return labelmap_rgb[:, :, ::-1]
-    else:
-        return labelmap_rgb
+    return labelmap_rgb[:, :, ::-1] if mode == 'BGR' else labelmap_rgb
 
 
 def define_colors_per_location_mean_sep():

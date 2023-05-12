@@ -73,8 +73,7 @@ def run_one_image(img, tgt, size, model, out_path, device):
 def myPSNR(tar_img, prd_img):
     imdff = np.clip(prd_img, 0, 1) - np.clip(tar_img, 0, 1)
     rmse = np.sqrt((imdff ** 2).mean())
-    ps = 20 * np.log10(1 / rmse)
-    return ps
+    return 20 * np.log10(1 / rmse)
 
 
 def get_args_parser():
@@ -100,11 +99,14 @@ if __name__ == '__main__':
 
     path_splits = ckpt_path.split('/')
     ckpt_dir, ckpt_file = path_splits[-2], path_splits[-1]
-    dst_dir = os.path.join('models_inference', ckpt_dir.split('/')[-1],
-                           "lol_inference_{}_{}".format(ckpt_file, os.path.basename(prompt).split(".")[0]))
+    dst_dir = os.path.join(
+        'models_inference',
+        ckpt_dir.split('/')[-1],
+        f'lol_inference_{ckpt_file}_{os.path.basename(prompt).split(".")[0]}',
+    )
     if not os.path.exists(dst_dir):
         os.makedirs(dst_dir)
-    print("output_dir: {}".format(dst_dir))
+    print(f"output_dir: {dst_dir}")
 
     model_painter = prepare_model(ckpt_path, model)
     print('Model loaded.')
@@ -115,9 +117,9 @@ if __name__ == '__main__':
     img_src_dir = "datasets/light_enhance/eval15/low"
     img_path_list = glob.glob(os.path.join(img_src_dir, "*.png"))
 
-    img2_path = "datasets/light_enhance/our485/low/{}.png".format(prompt)
-    tgt2_path = "datasets/light_enhance/our485/high/{}.png".format(prompt)
-    print('prompt: {}'.format(tgt2_path))
+    img2_path = f"datasets/light_enhance/our485/low/{prompt}.png"
+    tgt2_path = f"datasets/light_enhance/our485/high/{prompt}.png"
+    print(f'prompt: {tgt2_path}')
 
     # load the shared prompt image pair
     img2 = Image.open(img2_path).convert("RGB")
@@ -177,7 +179,11 @@ if __name__ == '__main__':
             output.save(out_path)
 
         with open(os.path.join(dst_dir, 'psnr_ssim.txt'), 'a') as f:
-            f.write(img_name+' ---->'+" PSNR: %.4f, SSIM: %.4f] " % (psnr, ssim)+'\n')
+            f.write(
+                f'{img_name} ---->'
+                + " PSNR: %.4f, SSIM: %.4f] " % (psnr, ssim)
+                + '\n'
+            )
 
     psnr_val_rgb = sum(psnr_val_rgb) / len(img_path_list)
     ssim_val_rgb = sum(ssim_val_rgb) / len(img_path_list)

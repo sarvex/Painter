@@ -96,11 +96,14 @@ if __name__ == '__main__':
 
     path_splits = ckpt_path.split('/')
     ckpt_dir, ckpt_file = path_splits[-2], path_splits[-1]
-    dst_dir = os.path.join('models_inference', ckpt_dir.split('/')[-1],
-                           "sidd_inference_{}_{}".format(ckpt_file, os.path.basename(prompt).split(".")[0]))
+    dst_dir = os.path.join(
+        'models_inference',
+        ckpt_dir.split('/')[-1],
+        f'sidd_inference_{ckpt_file}_{os.path.basename(prompt).split(".")[0]}',
+    )
     if not os.path.exists(dst_dir):
         os.makedirs(dst_dir)
-    print("output_dir: {}".format(dst_dir))
+    print(f"output_dir: {dst_dir}")
 
     model_painter = prepare_model(ckpt_path, model)
     print('Model loaded.')
@@ -114,8 +117,8 @@ if __name__ == '__main__':
     Inoisy = np.float32(np.array(img['ValidationNoisyBlocksSrgb']))  # (40, 32, 256, 256, 3)
     Inoisy /= 255.
 
-    img2_path = "datasets/denoise/train/input/{}.png".format(prompt)
-    tgt2_path = "datasets/denoise/train/groundtruth/{}.png".format(prompt)
+    img2_path = f"datasets/denoise/train/input/{prompt}.png"
+    tgt2_path = f"datasets/denoise/train/groundtruth/{prompt}.png"
 
     # load the shared prompt image pair
     img2 = Image.open(img2_path).convert("RGB")

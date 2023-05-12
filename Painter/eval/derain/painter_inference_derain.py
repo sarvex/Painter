@@ -91,11 +91,14 @@ if __name__ == '__main__':
 
     path_splits = ckpt_path.split('/')
     ckpt_dir, ckpt_file = path_splits[-2], path_splits[-1]
-    dst_dir = os.path.join('models_inference', ckpt_dir,
-                           "derain_inference_{}_{}".format(ckpt_file, os.path.basename(prompt).split(".")[0]))
+    dst_dir = os.path.join(
+        'models_inference',
+        ckpt_dir,
+        f'derain_inference_{ckpt_file}_{os.path.basename(prompt).split(".")[0]}',
+    )
     if not os.path.exists(dst_dir):
         os.makedirs(dst_dir)
-    print("output_dir: {}".format(dst_dir))
+    print(f"output_dir: {dst_dir}")
 
     model_painter = prepare_model(ckpt_path, model)
     print('Model loaded.')
@@ -103,9 +106,9 @@ if __name__ == '__main__':
     device = torch.device("cuda")
     model_painter.to(device)
 
-    img2_path = "datasets/derain/train/input/{}.jpg".format(prompt)
-    tgt2_path = "datasets/derain/train/target/{}.jpg".format(prompt)
-    print('prompt: {}'.format(tgt2_path))
+    img2_path = f"datasets/derain/train/input/{prompt}.jpg"
+    tgt2_path = f"datasets/derain/train/target/{prompt}.jpg"
+    print(f'prompt: {tgt2_path}')
 
     # load the shared prompt image pair
     img2 = Image.open(img2_path).convert("RGB")

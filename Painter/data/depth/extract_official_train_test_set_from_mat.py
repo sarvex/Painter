@@ -50,7 +50,7 @@ def convert_image(i, scene, depth_raw, image):
         assert idx in test_images, "index %d neither found in training set nor in test set" % idx
         train_test = "test"
 
-    folder = "%s/%s/%s" % (out_folder, train_test, scene)
+    folder = f"{out_folder}/{train_test}/{scene}"
     if not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -66,7 +66,10 @@ def convert_image(i, scene, depth_raw, image):
 if __name__ == "__main__":
 
     if len(sys.argv) < 4:
-        print("usage: %s <h5_file> <train_test_split> <out_folder>" % sys.argv[0], file=sys.stderr)
+        print(
+            f"usage: {sys.argv[0]} <h5_file> <train_test_split> <out_folder>",
+            file=sys.stderr,
+        )
         sys.exit(0)
 
     h5_file = h5py.File(sys.argv[1], "r")
@@ -74,8 +77,8 @@ if __name__ == "__main__":
     train_test = scipy.io.loadmat(sys.argv[2])
     out_folder = sys.argv[3]
 
-    test_images = set([int(x) for x in train_test["testNdxs"]])
-    train_images = set([int(x) for x in train_test["trainNdxs"]])
+    test_images = {int(x) for x in train_test["testNdxs"]}
+    train_images = {int(x) for x in train_test["trainNdxs"]}
     print("%d training images" % len(train_images))
     print("%d test images" % len(test_images))
 

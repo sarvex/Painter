@@ -54,35 +54,29 @@ aug_idx = 0
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='TopDownGetBboxCenterScale', padding=1.25),
-    # dict(type='TopDownRandomShiftBboxCenter', shift_factor=0.16, prob=0.3),
     dict(type='TopDownRandomFlip', flip_prob=0),
-    # dict(
-    #     type='TopDownHalfBodyTransform',
-    #     num_joints_half_body=8,
-    #     prob_half_body=0.3),
-    # dict(
-    #     type='TopDownGetRandomScaleRotation', rot_factor=40, scale_factor=0.5),
     dict(type='TopDownAffine'),
-    # dict(type='ToTensor'),
-    # dict(
-    #     type='NormalizeTensor',
-    #     mean=[0.485, 0.456, 0.406],
-    #     std=[0.229, 0.224, 0.225]),
     dict(
         type='TopDownGenerateTargetCustom',
         sigma=sigma,
-        # the following are custom args
         use_gt_bbox=use_gt_bbox,
-        dir_name='train_256x192_aug{}'.format(aug_idx),
+        dir_name=f'train_256x192_aug{aug_idx}',
         target_path='../../datasets/coco_pose/data_pair',
     ),
     dict(
         type='Collect',
         keys=['img', 'target', 'target_weight'],
         meta_keys=[
-            'image_file', 'joints_3d', 'joints_3d_visible', 'center', 'scale',
-            'rotation', 'bbox_score', 'flip_pairs'
-        ]),
+            'image_file',
+            'joints_3d',
+            'joints_3d_visible',
+            'center',
+            'scale',
+            'rotation',
+            'bbox_score',
+            'flip_pairs',
+        ],
+    ),
 ]
 
 val_pipeline = [

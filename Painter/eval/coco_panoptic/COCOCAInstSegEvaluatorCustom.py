@@ -46,32 +46,28 @@ def define_colors_per_location_r_gb(num_location_r=16, num_location_gb=20):
     color_dict = {}
     # R = G = B = 0
     # B += separation_per_channel  # offset for the first loop
-    for global_y in range(4):
-        for global_x in range(4):
-            global_locat = (global_x, global_y)
-            global_locat_sum = global_y * 4 + global_x
-            R = 255 - global_locat_sum * sep_r
-            for local_y in range(num_location_gb):
-                for local_x in range(num_location_gb):
-                    local_locat = (local_x, local_y)
-                    G = 255 - local_y * sep_gb
-                    B = 255 - local_x * sep_gb
+    for global_y, global_x in itertools.product(range(4), range(4)):
+        global_locat = (global_x, global_y)
+        global_locat_sum = global_y * 4 + global_x
+        R = 255 - global_locat_sum * sep_r
+        for local_y, local_x in itertools.product(range(num_location_gb), range(num_location_gb)):
+            local_locat = (local_x, local_y)
+            G = 255 - local_y * sep_gb
+            B = 255 - local_x * sep_gb
 
-                    assert (R < 256) and (G < 256) and (B < 256)
-                    assert (R >= 0) and (G >= 0) and (B >= 0)
-                    assert (R, G, B) not in color_dict.values()
+            assert (R < 256) and (G < 256) and (B < 256)
+            assert (R >= 0) and (G >= 0) and (B >= 0)
+            assert (R, G, B) not in color_dict.values()
 
-                    location = (global_locat, local_locat)
-                    color_dict[location] = (R, G, B)
-                    # print(location, R, G, B)
+            location = (global_locat, local_locat)
+            color_dict[location] = (R, G, B)
     return color_dict
 
 
 def load_image_with_retry(image_path):
     while True:
         try:
-            img = Image.open(image_path)
-            return img
+            return Image.open(image_path)
         except OSError as e:
             print(f"Catched exception: {str(e)}. Re-trying...")
             import time
@@ -159,7 +155,7 @@ class COCOEvaluatorCustom(COCOEvaluator):
 
         assert self._output_dir
         file_path = os.path.join(self._output_dir, "coco_instances_results.json")
-        self._logger.info("Saving results to {}".format(file_path))
+        self._logger.info(f"Saving results to {file_path}")
         assert self.file_path is None
         self.file_path = file_path
         with PathManager.open(file_path, "w") as f:
@@ -299,16 +295,14 @@ class COCOEvaluatorCustom(COCOEvaluator):
                     maskness_neg_list.append(maskness_neg)
 
         # handle cases of empty pred
-        if len(mask_list) == 0:
+        if not mask_list:
             image_size = (height, width)
             result = Instances(image_size)
             result.pred_masks = torch.zeros(1, height, width)
             result.scores = torch.zeros(1)
             result.pred_boxes = Boxes(torch.zeros(1, 4))
             result.pred_classes = torch.zeros(1)
-            output = {'instances': result}
-            return output
-
+            return {'instances': result}
         # dists = torch.cat(dist_list, dim=0)  # (num_inst, h, w)
         masks = torch.cat(mask_list, dim=0)  # (num_inst, h, w)
 
@@ -350,8 +344,7 @@ class COCOEvaluatorCustom(COCOEvaluator):
         result.pred_boxes = Boxes(torch.zeros(masks.shape[0], 4))
         result.pred_classes = labels
 
-        output = {'instances': result}
-        return output
+        return {'instances': result}
 
 
 if __name__ == '__main__':
@@ -360,7 +353,7 @@ if __name__ == '__main__':
     coco_annotation = "datasets/coco/annotations/instances_val2017.json"
 
     pred_dir = args.pred_dir
-    output_folder = os.path.join(pred_dir, 'eval_{}'.format(dataset_name))
+    output_folder = os.path.join(pred_dir, f'eval_{dataset_name}')
 
     # get palette
     PALETTE_DICT = define_colors_per_location_r_gb()
@@ -389,8 +382,11 @@ if __name__ == '__main__':
         # keys in input: "image_id",
         # keys in output: "instances", which contains pred_boxes, scores, pred_classes, pred_masks
         image_org_name = os.path.basename(file_name).split("_")[0]
-        image_org_name = image_org_name.replace(".png", ".jpg") if image_org_name.endswith(".png") \
-            else image_org_name + ".jpg"  # else for gt eval
+        image_org_name = (
+            image_org_name.replace(".png", ".jpg")
+            if image_org_name.endswith(".png")
+            else f"{image_org_name}.jpg"
+        )
         image_id = img2id[image_org_name]
         input_dict = {"image_id": image_id}
         output_dict = {"pred_path": file_name}

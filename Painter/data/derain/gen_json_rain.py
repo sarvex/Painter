@@ -46,8 +46,7 @@ if __name__ == "__main__":
         target_path = image_path.replace('input', 'target')
         assert os.path.isfile(image_path)
         assert os.path.isfile(target_path)
-        pair_dict = {}
-        pair_dict["image_path"] = image_path.replace('datasets/', '')
+        pair_dict = {"image_path": image_path.replace('datasets/', '')}
         pair_dict["target_path"] = target_path.replace('datasets/', '')
         pair_dict["type"] = "derain_image2derain"
         output_dict.append(pair_dict)

@@ -27,21 +27,24 @@ if __name__ == "__main__":
     args = get_args_parser()
 
     panoptic_dir = "datasets/coco/pano_ca_inst"
-    save_path = os.path.join(args.output_dir, "coco_{}_image_panoptic_inst.json".format(args.split))
+    save_path = os.path.join(
+        args.output_dir, f"coco_{args.split}_image_panoptic_inst.json"
+    )
     print(save_path)
 
     output_dict = []
 
-    image_path_list = glob.glob(os.path.join(panoptic_dir, '{}_*'.format(args.split), '*image*.png'))
+    image_path_list = glob.glob(
+        os.path.join(panoptic_dir, f'{args.split}_*', '*image*.png')
+    )
     for image_path in tqdm.tqdm(image_path_list):
         image_dir, image_name = os.path.dirname(image_path), os.path.basename(image_path)
         panoptic_path = os.path.join(image_dir, image_name.replace('image', 'label'))
         assert os.path.isfile(image_path)
         if not os.path.isfile(panoptic_path):
-            print("ignore {}".format(image_path))
+            print(f"ignore {image_path}")
             continue
-        pair_dict = {}
-        pair_dict["image_path"] = image_path.replace('datasets/', '')
+        pair_dict = {"image_path": image_path.replace('datasets/', '')}
         pair_dict["target_path"] = panoptic_path.replace('datasets/', '')
         pair_dict["type"] = "coco_image2panoptic_inst"
         output_dict.append(pair_dict)

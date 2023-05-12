@@ -171,7 +171,7 @@ def main():
     #             cfg.model.neck.rfp_backbone.pretrained = None
 
     if args.gpu_ids is not None:
-        cfg.gpu_ids = args.gpu_ids[0:1]
+        cfg.gpu_ids = args.gpu_ids[:1]
         warnings.warn('`--gpu-ids` is deprecated, please use `--gpu-id`. '
                       'Because we only support single GPU mode in '
                       'non-distributed testing. Use the first GPU '

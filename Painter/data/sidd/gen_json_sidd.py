@@ -25,8 +25,8 @@ def get_args_parser():
 if __name__ == "__main__":
     args = get_args_parser()
 
-    image_dir = "datasets/denoise/{}/input".format(args.split)
-    save_path = os.path.join(args.output_dir, "denoise_ssid_{}.json".format(args.split))
+    image_dir = f"datasets/denoise/{args.split}/input"
+    save_path = os.path.join(args.output_dir, f"denoise_ssid_{args.split}.json")
     print(save_path)
 
     output_dict = []
@@ -37,8 +37,7 @@ if __name__ == "__main__":
         target_path = image_path.replace('input', 'groundtruth')
         assert os.path.isfile(image_path)
         assert os.path.isfile(target_path)
-        pair_dict = {}
-        pair_dict["image_path"] = image_path.replace('datasets/', '')
+        pair_dict = {"image_path": image_path.replace('datasets/', '')}
         pair_dict["target_path"] = target_path.replace('datasets/', '')
         pair_dict["type"] = "ssid_image2denoise"
         output_dict.append(pair_dict)

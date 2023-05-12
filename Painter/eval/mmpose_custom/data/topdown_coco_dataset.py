@@ -130,7 +130,7 @@ class TopDownCocoDatasetCustom(TopDownCocoDataset):
             image_file = osp.join(self.img_prefix, self.id2name[img_id])
             if self.imagename_with_boxid:
                 # gt bbox label example: 000000342971_box0_image.png
-                image_file = image_file.replace(".jpg", "_box{}_image.png".format(bbox_id))
+                image_file = image_file.replace(".jpg", f"_box{bbox_id}_image.png")
             rec.append({
                 'image_file': image_file,
                 'bbox': obj['clean_bbox'][:4],
@@ -153,7 +153,7 @@ class TopDownCocoDatasetCustom(TopDownCocoDataset):
             all_boxes = json.load(f)
 
         if not all_boxes:
-            raise ValueError('=> Load %s fail!' % self.bbox_file)
+            raise ValueError(f'=> Load {self.bbox_file} fail!')
 
         print(f'=> Total boxes: {len(all_boxes)}')
 
@@ -174,7 +174,7 @@ class TopDownCocoDatasetCustom(TopDownCocoDataset):
             joints_3d = np.zeros((num_joints, 3), dtype=np.float32)
             joints_3d_visible = np.ones((num_joints, 3), dtype=np.float32)
             if self.imagename_with_boxid:
-                image_file = image_file.replace(".jpg", "_box{}_image.png".format(bbox_id))
+                image_file = image_file.replace(".jpg", f"_box{bbox_id}_image.png")
             kpt_db.append({
                 'image_file': image_file,
                 'rotation': 0,
@@ -252,15 +252,17 @@ class TopDownCocoDatasetCustom(TopDownCocoDataset):
             batch_size = len(image_paths)
             for i in range(batch_size):
                 image_id = self.name2id[image_paths[i][len(self.img_prefix):]]
-                kpts[image_id].append({
-                    'keypoints': preds[i],
-                    'center': boxes[i][0:2],
-                    'scale': boxes[i][2:4],
-                    'area': boxes[i][4],
-                    'score': boxes[i][5],
-                    'image_id': image_id,
-                    'bbox_id': bbox_ids[i]
-                })
+                kpts[image_id].append(
+                    {
+                        'keypoints': preds[i],
+                        'center': boxes[i][:2],
+                        'scale': boxes[i][2:4],
+                        'area': boxes[i][4],
+                        'score': boxes[i][5],
+                        'image_id': image_id,
+                        'bbox_id': bbox_ids[i],
+                    }
+                )
         kpts = self._sort_and_unique_bboxes(kpts)
 
         # rescoring and oks nms

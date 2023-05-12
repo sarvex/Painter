@@ -146,7 +146,7 @@ if __name__ == '__main__':
     dataset_name = 'ade20k_sem_seg_val'
     pred_dir = args.pred_dir
     suffix = args.suffix
-    output_folder = os.path.join(pred_dir, 'eval_ade20k_{}'.format(suffix))
+    output_folder = os.path.join(pred_dir, f'eval_ade20k_{suffix}')
 
     from data.ade20k.gen_color_ade20k_sem import define_colors_per_location_mean_sep
     PALETTE = define_colors_per_location_mean_sep()
@@ -177,13 +177,14 @@ if __name__ == '__main__':
     results = evaluator.evaluate()
     print(results)
 
-    copy_paste_results = {}
-    for key in ['mIoU', 'fwIoU', 'mACC', 'pACC']:
-        copy_paste_results[key] = results['sem_seg'][key]
+    copy_paste_results = {
+        key: results['sem_seg'][key]
+        for key in ['mIoU', 'fwIoU', 'mACC', 'pACC']
+    }
     print(copy_paste_results)
 
     result_file = os.path.join(output_folder, "results.txt")
-    print("writing to {}".format(result_file))
+    print(f"writing to {result_file}")
     with open(result_file, 'w') as f:
         print(results, file=f)
         print(copy_paste_results, file=f)

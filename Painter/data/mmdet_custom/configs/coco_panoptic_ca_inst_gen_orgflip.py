@@ -79,12 +79,13 @@ data = dict(
     train=dict(pipeline=train_pipeline),
     val=dict(
         pipeline=test_pipeline,
-        ins_ann_file=data_root + 'annotations/instances_val2017.json',
+        ins_ann_file=f'{data_root}annotations/instances_val2017.json',
     ),
     test=dict(
         pipeline=test_pipeline,
-        ins_ann_file=data_root + 'annotations/instances_val2017.json',
-    ))
+        ins_ann_file=f'{data_root}annotations/instances_val2017.json',
+    ),
+)
 
 embed_multi = dict(lr_mult=1.0, decay_mult=0.0)
 # optimizer

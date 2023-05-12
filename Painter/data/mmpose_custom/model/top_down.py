@@ -151,7 +151,7 @@ class TopDownCustom(TopDown):
         if self.with_keypoint:
             keypoint_result = self.keypoint_head.decode(
                 img_metas, output_heatmap, img_size=[img_width, img_height])
-            result.update(keypoint_result)
+            result |= keypoint_result
 
             if not return_heatmap:
                 output_heatmap = None
@@ -207,7 +207,7 @@ class TopDownCustom(TopDown):
         if self.with_keypoint:
             keypoint_result = self.keypoint_head.decode(
                 img_metas, output_heatmap, img_size=[img_width, img_height])
-            result.update(keypoint_result)
+            result |= keypoint_result
 
             if not return_heatmap:
                 output_heatmap = None
